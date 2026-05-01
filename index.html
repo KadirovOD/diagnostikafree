@@ -851,6 +851,10 @@
                 body: new FormData(fileForm)
             })
                 .then(response => {
+                    // ✅ Meta Pixel: Lead eventi — forma muvaffaqiyatli yuborildi
+                    if (typeof fbq !== 'undefined') {
+                        fbq('track', 'Lead');
+                    }
                     successOverlay.classList.add('active');
                     btn.innerText = originalBtnText;
                     btn.disabled = false;
@@ -864,6 +868,28 @@
                     btn.disabled = false;
                 });
         });
+
+        // ✅ Meta Pixel: Scroll depth tracking (25%, 50%, 75%, 90%)
+        const scrollMilestones = [25, 50, 75, 90];
+        const scrollFired = new Set();
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            if (docHeight <= 0) return;
+
+            const scrollPercent = Math.round((scrollTop / docHeight) * 100);
+
+            scrollMilestones.forEach(milestone => {
+                if (scrollPercent >= milestone && !scrollFired.has(milestone)) {
+                    scrollFired.add(milestone);
+                    if (typeof fbq !== 'undefined') {
+                        fbq('trackCustom', 'ScrollDepth', { depth: milestone + '%' });
+                    }
+                    console.log('ScrollDepth event fired:', milestone + '%');
+                }
+            });
+        }, { passive: true });
     </script>
 </body>
 
